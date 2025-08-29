@@ -1,0 +1,41 @@
+name: hourly-signal
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour on the hour (UTC)
+  workflow_dispatch:       # manual run button
+
+jobs:
+  run-signal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Run once
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          QUOTE_CCY: USDT
+          TIMEFRAME: 1h
+          LOOKBACK: "100"
+          HORIZON: "12"
+          VOL_MIN: "2000000"
+          VOL_MAX: "5000000000"
+          SCAN_ALL: "true"
+          TOP_N: "200"
+          TP_PCT: "5%"
+          SL_PCT: "3%"
+          FEE_PCT: "0.06%"
+          PROB_FLOOR: "0.50"
+          REQUIRE_TREND: "true"
+          USE_VOL: "true"
+          VOL_THRESH: "1.5%"
+          TIE_POLICY: "sl_first"
+          SHORT_HISTORY: "true"
+          MAX_ROWS: "8"
+        run: python hourly_signal.py
+        
